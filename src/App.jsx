@@ -10,7 +10,10 @@ import Login from "./pages/Login";
 import PageNotFound from "./pages/PageNotFound";
 import AppLayout from "./ui/AppLayout";
 
+
 const App = () => {
+
+
   return (
     <>
       <GLobalStyles />
