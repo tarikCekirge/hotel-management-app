@@ -1,41 +1,33 @@
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import GLobalStyles from "./styles/GlobalStyles";
-import Button from "./ui/Button";
-import Heading from "./ui/Heading";
-import Row from "./ui/Row";
-
-
+import Dashboard from "./pages/Dashboard";
+import Bookings from "./pages/Bookings";
+import Cabins from "./pages/Cabins";
+import NewUsers from "./pages/Users";
+import Settings from "./pages/Settings";
+import Account from "./pages/Account";
+import Login from "./pages/Login";
+import PageNotFound from "./pages/PageNotFound";
 
 const App = () => {
   return (
     <>
       <GLobalStyles />
-      <Button>Varsayılan Buton</Button>
-      <Button size="large">Large Buton</Button>
-      <Button variation="secondary">Secondary Buton</Button>
-
-      <div>
-
-        <Row>
-          <div>Default Yatay</div>
-          <div>Satır</div>
-        </Row>
-
-        <Row type="vertical">
-          <div>Dikey</div>
-          <div>Satır</div>
-        </Row>
-
-        <Heading as='h1'>H1</Heading>
-        <Heading as='h2'>H1</Heading>
-        <Heading as='h3'>H1</Heading>
-        <Heading as='h5'>H1</Heading>
-
-      </div>
-
+      <BrowserRouter>
+        <Routes>
+          <Route index element={<Navigate replace to='dashboard' />} />
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="bookings" element={<Bookings />} />
+          <Route path="cabins" element={<Cabins />} />
+          <Route path="users" element={<NewUsers />} />
+          <Route path="settings" element={<Settings />} />
+          <Route path="account" element={<Account />} />
+          <Route path="login" element={<Login />} />
+          <Route path="*" element={<PageNotFound />} />
+        </Routes>
+      </BrowserRouter>
     </>
+  )
+}
 
-
-  );
-};
-
-export default App;
+export default App
