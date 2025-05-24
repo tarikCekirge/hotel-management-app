@@ -1,27 +1,23 @@
-import { useEffect } from "react";
+import { useState } from "react";
+import CabinTable from "../features/cabins/CabinTable";
+import Button from "../ui/Button";
 import Heading from "../ui/Heading";
 import Row from "../ui/Row";
-import { getCabins } from "../services/apiCabins";
+import CreateCabinForm from "../features/cabins/CreateCabinForm";
 
 function Cabins() {
+  const [showForm, setShowForm] = useState(false);
 
-  useEffect(() => {
-    const fetchCabins = async () => {
-      try {
-        const cabins = await getCabins();
-        console.log(cabins);
-      } catch (error) {
-        console.error("Veri alınamadı:", error.message);
-      }
-    };
-
-    fetchCabins();
-  }, []);
   return (
-    <Row type="horizontal">
-      <Heading as="h1">All cabins</Heading>
-      <p>TEST</p>
-    </Row>
+    <>
+      <Row type="horizontal" align="center" justify="space-between">
+        <Heading as="h1">All cabins</Heading>
+        <p>Filter/Sort</p>
+      </Row>
+      <Button onClick={() => setShowForm(show => !show)}>Yeni Oda EKle</Button>
+      {showForm && <CreateCabinForm />}
+      <CabinTable />
+    </>
   );
 }
 

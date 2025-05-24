@@ -1,4 +1,8 @@
 import styled from "styled-components";
+import { formatCurrency } from "../../utils/helpers";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { deleteCabin } from "../../services/apiCabins";
+import toast from "react-hot-toast";
 
 const TableRow = styled.div`
   display: grid;
@@ -38,3 +42,38 @@ const Discount = styled.div`
   font-weight: 500;
   color: var(--color-green-700);
 `;
+
+
+
+const CabinRow = ({
+  cabin: { image, name, id, regularPrice, discount, maxCapacity },
+}) => {
+  const queryClient = useQueryClient();
+
+  const { mutate, isPending: isDeleting } = useMutation({
+    mutationFn: (id) => deleteCabin(id),
+    onSuccess: () => {
+      toast.success("Oda silindi")
+      queryClient.invalidateQueries({ queryKey: ['cabins'] });
+    },
+    onError: (err) => {
+      toast.error("Silme işlemi başarısız!", err);
+    },
+  });
+
+
+
+  return (
+    <TableRow>
+      <Img src={image} alt={name} />
+      <Cabin>{name}</Cabin>
+      <div>Max: {maxCapacity} kişi</div>
+      <Price>{formatCurrency(regularPrice)}</Price>
+      <Discount>{formatCurrency(discount)}</Discount>
+      <button onClick={() => mutate(id)} disabled={isDeleting}>Delete</button>
+    </TableRow>
+  );
+};
+
+
+export default CabinRow
