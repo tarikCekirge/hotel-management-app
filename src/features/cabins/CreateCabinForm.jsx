@@ -1,4 +1,3 @@
-import styled from "styled-components";
 
 import Input from "../../ui/Input";
 import Form from "../../ui/Form";
@@ -9,42 +8,10 @@ import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createCabin } from "../../services/apiCabins";
 import toast from "react-hot-toast";
+import FormRow from "../../ui/FormRow";
+import { useEffect } from "react";
 
-const FormRow = styled.div`
-  display: grid;
-  align-items: center;
-  grid-template-columns: 24rem 1fr 1.2fr;
-  gap: 2.4rem;
 
-  padding: 1.2rem 0;
-
-  &:first-child {
-    padding-top: 0;
-  }
-
-  &:last-child {
-    padding-bottom: 0;
-  }
-
-  &:not(:last-child) {
-    border-bottom: 1px solid var(--color-grey-100);
-  }
-
-  &:has(button) {
-    display: flex;
-    justify-content: flex-end;
-    gap: 1.2rem;
-  }
-`;
-
-const Label = styled.label`
-  font-weight: 500;
-`;
-
-const Error = styled.span`
-  font-size: 1.4rem;
-  color: var(--color-red-700);
-`;
 
 function CreateCabinForm() {
 
@@ -62,76 +29,99 @@ function CreateCabinForm() {
     },
   })
 
-  const { register, handleSubmit, reset, getValues, formState: { errors, isValid, isDirty } } = useForm({
+  const { register, handleSubmit, watch, trigger, reset, formState: { errors, isValid, isDirty } } = useForm({
     mode: "onChange",
   });
+  const regularPrice = watch("regularPrice");
+
+  useEffect(() => {
+    trigger("discount");
+  }, [regularPrice, trigger]);
 
 
   const onSubmit = (data) => {
-    addNewCabin(data)
+    const imageFile = data.image?.[0];
+
+    if (!imageFile) {
+      toast.error("Lütfen bir resim seçin.");
+      return;
+    }
+    addNewCabin({ ...data, image: imageFile })
   };
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
-      <FormRow>
-        <Label htmlFor="name">Cabin name</Label>
+      <FormRow label="Cabin name" error={errors.name?.message}>
         <Input type="text" id="name" {...register("name", { required: "Bu alan zorunludur." })} />
-        {errors.name && <Error>*{errors.name.message}</Error>}
       </FormRow>
 
-      <FormRow>
-        <Label htmlFor="maxCapacity">Maximum capacity</Label>
-        <Input type="number" id="maxCapacity" {...register("maxCapacity", {
-          required: "Bu alan zorunludur.",
-          min: { value: 1, message: "En az 1 kişi olmalı." },
-        })} />
-        {errors.maxCapacity && <Error>*{errors.maxCapacity.message}</Error>}
+      <FormRow label="Maximum capacity" error={errors.maxCapacity?.message}>
+        <Input
+          type="number"
+          id="maxCapacity"
+          {...register("maxCapacity", {
+            required: "Bu alan zorunludur.",
+            min: { value: 1, message: "En az 1 kişi olmalı." },
+          })}
+        />
       </FormRow>
 
-      <FormRow>
-        <Label htmlFor="regularPrice">Regular price</Label>
-        <Input type="number" id="regularPrice" {...register("regularPrice", {
-          required: "Fiyat zorunludur.",
-          min: { value: 0, message: "Fiyat negatif olamaz." },
-        })} />
-        {errors.regularPrice && <Error>*{errors.regularPrice.message}</Error>}
+      <FormRow label="Regular price" error={errors.regularPrice?.message}>
+        <Input
+          type="number"
+          id="regularPrice"
+          {...register("regularPrice", {
+            required: "Fiyat zorunludur.",
+            min: { value: 0, message: "Fiyat negatif olamaz." },
+          })}
+        />
       </FormRow>
 
-      <FormRow>
-        <Label htmlFor="discount">Discount</Label>
-        <Input type="number" id="discount" defaultValue={0} {...register("discount", {
-          min: { value: 0, message: "İndirim negatif olamaz." },
-          validate: (value) => {
-            const regularPrice = getValues().regularPrice;
-            if (value > regularPrice) {
-              return "İndirim, normal fiyatı geçemez.";
+      <FormRow label="Discount" error={errors.discount?.message}>
+        <Input
+          type="number"
+          id="discount"
+          defaultValue={0}
+          {...register("discount", {
+            min: { value: 0, message: "İndirim negatif olamaz." },
+            validate: (value) => {
+              if (!regularPrice) return true;
+              if (Number(value) > Number(regularPrice)) {
+                return "İndirim, normal fiyatı geçemez.";
+              }
+              return true;
             }
-          },
-        })} />
-        {errors.discount && <Error>*{errors.discount.message}</Error>}
+          })}
+        />
+      </FormRow>
+
+      <FormRow label="Description" error={errors.description?.message}>
+        <Textarea
+          defaultValue=""
+          id="description"
+          {...register("description", {
+            required: "Açıklama boş bırakılamaz.",
+          })}
+        />
+      </FormRow>
+
+      <FormRow label="Cabin photo" error={errors.image?.message}>
+        <FileInput
+          id="image"
+          accept="image/*"
+
+          {...register("image", {
+            required: "Resim eklemek zorunludur.",
+          })}
+        />
       </FormRow>
 
       <FormRow>
-        <Label htmlFor="description">Description for website</Label>
-        <Textarea defaultValue="" id="description"  {...register("description", {
-          required: "Açıklama boş bırakılamaz.",
-        })} />
-        {errors.description && <Error>*{errors.description.message}</Error>}
-      </FormRow>
-
-      <FormRow>
-        <Label htmlFor="image">Cabin photo</Label>
-        <FileInput id="image" accept="image/*"  {...register("image", {
-          required: "Resim eklemek zorunludur.",
-        })} />
-        {errors.image && <Error>*{errors.image.message}</Error>}
-      </FormRow>
-
-      <FormRow>
-        {/* type is an HTML attribute! */}
         <Button type="reset" variation="secondary" onClick={() => reset()}>
           Cancel
         </Button>
-        <Button type="submit" disabled={!isDirty || !isValid || isCreating}>Edit cabin</Button>
+        <Button type="submit" disabled={!isDirty || !isValid || isCreating}>
+          {isCreating ? 'Adding...' : 'Add cabin'}
+        </Button>
       </FormRow>
     </Form>
   );

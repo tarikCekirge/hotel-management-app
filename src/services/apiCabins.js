@@ -1,4 +1,5 @@
 import supabase from "./supabase";
+const supabaseUrl = import.meta.env.VITE_API_URL;
 
 export const getCabins = async () => {
   try {
@@ -17,19 +18,39 @@ export const getCabins = async () => {
 };
 
 export const createCabin = async (newCabin) => {
-  try {
-    const { data, error } = await supabase
-      .from("cabins")
-      .insert([newCabin])
-      .select();
+  const imageFile = newCabin.image;
+  const imageName = `${Date.now()}-${imageFile.name}`.replaceAll("/", "");
 
-    if (error) throw error;
+  // 1. Görseli Supabase Storage'a yükle
+  const { error: storageError } = await supabase.storage
+    .from("cabin-images")
+    .upload(imageName, imageFile, {
+      cacheControl: "3600",
+      upsert: false,
+      contentType: imageFile.type,
+    });
 
-    return data;
-  } catch (err) {
-    console.error("Yeni kabin eklenirken hata oluştu:", err.message);
-    throw err;
+  if (storageError) {
+    console.error(storageError);
+    await supabase.from("cabins").delete().eq("id", data.id);
+    throw new Error("Resim yüklenemedi!");
   }
+
+  // 2. Görselin public URL'ini oluştur
+  const publicUrl = `${supabaseUrl}/storage/v1/object/public/cabin-images/${imageName}`;
+
+  // 3. Veritabanına kayıt
+  const { data, error } = await supabase
+    .from("cabins")
+    .insert([{ ...newCabin, image: publicUrl }])
+    .select();
+
+  if (error) {
+    console.error(error);
+    throw new Error("Kabin verisi kaydedilemedi!");
+  }
+
+  return data;
 };
 
 export const deleteCabin = async (id) => {
