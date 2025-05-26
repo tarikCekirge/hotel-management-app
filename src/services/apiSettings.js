@@ -5,7 +5,7 @@ export async function getSettings() {
 
   if (error) {
     console.error(error);
-    throw new Error("Settings could not be loaded");
+    throw new Error("Ayarlar yüklenemedi");
   }
   return data;
 }
@@ -21,7 +21,7 @@ export async function updateSetting(newSetting) {
 
   if (error) {
     console.error(error);
-    throw new Error("Settings could not be updated");
+    throw new Error("Ayarlar güncellenemedi");
   }
   return data;
 }
