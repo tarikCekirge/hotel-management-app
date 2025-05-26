@@ -18,10 +18,15 @@ export const getCabins = async () => {
 };
 
 export const createEditCabin = async (newCabin, id) => {
+  console.log("Yeni kabin verisi:", newCabin, "ID:", id);
   const isEditing = Boolean(id);
   const isFile = newCabin.image && typeof newCabin.image === "object";
 
   let imageUrl = newCabin.image;
+
+  newCabin.discount === ""
+    ? (newCabin.discount = null)
+    : (newCabin.discount = parseFloat(newCabin.discount));
 
   if (isFile) {
     const imageFile = newCabin.image;

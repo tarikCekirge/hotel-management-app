@@ -5,37 +5,25 @@ import Button from "../../ui/Button";
 import FileInput from "../../ui/FileInput";
 import Textarea from "../../ui/Textarea";
 import { useForm } from "react-hook-form";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createEditCabin } from "../../services/apiCabins";
+
 import toast from "react-hot-toast";
 import FormRow from "../../ui/FormRow";
 import { useEffect } from "react";
+import { useCreateCabin } from "./useCreateCabin";
 
 
 
 function CreateCabinForm({ cabinToEdit, onSetShowForm }) {
-  const queryClient = useQueryClient();
   const { id: editId, ...editValues } = cabinToEdit || {};
 
   const idEditSession = Boolean(editId);
 
-  const { mutate: addNewCabin, isPending: isCreating } = useMutation({
-    mutationFn: ({ newCabinData, cabinId }) => createEditCabin(newCabinData, cabinId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['cabins'] });
-      if (idEditSession) {
-        toast.success("Oda güncellendi!");
-        onSetShowForm(false);
-      } else {
-        toast.success("Yeni oda eklendi!");
-
-      }
-      reset();
-    },
-    onError: (err) => {
-      toast.error("Eklerken hata oldu.", err);
-    },
-  })
+  const { addNewCabin, isCreating } = useCreateCabin(() => {
+    reset();
+    if (idEditSession) {
+      onSetShowForm(false);
+    }
+  });
 
   const { register, handleSubmit, watch, trigger, reset, formState: { errors, isValid, isDirty } } = useForm({
     mode: "onChange",
