@@ -6,30 +6,22 @@ import FileInput from "../../ui/FileInput";
 import Textarea from "../../ui/Textarea";
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createEditCabin } from "../../services/apiCabins";
+import { createCabin } from "../../services/apiCabins";
 import toast from "react-hot-toast";
 import FormRow from "../../ui/FormRow";
 import { useEffect } from "react";
 
 
 
-function CreateCabinForm({ cabinToEdit, onSetShowForm }) {
-  const queryClient = useQueryClient();
-  const { id: editId, ...editValues } = cabinToEdit || {};
+function CreateCabinForm({ cabin }) {
 
-  const idEditSession = Boolean(editId);
+  const queryClient = useQueryClient();
 
   const { mutate: addNewCabin, isPending: isCreating } = useMutation({
-    mutationFn: ({ newCabinData, cabinId }) => createEditCabin(newCabinData, cabinId),
+    mutationFn: createCabin,
     onSuccess: () => {
+      toast.success("Yeni oda eklendi!");
       queryClient.invalidateQueries({ queryKey: ['cabins'] });
-      if (idEditSession) {
-        toast.success("Oda güncellendi!");
-        onSetShowForm(false);
-      } else {
-        toast.success("Yeni oda eklendi!");
-
-      }
       reset();
     },
     onError: (err) => {
@@ -39,7 +31,6 @@ function CreateCabinForm({ cabinToEdit, onSetShowForm }) {
 
   const { register, handleSubmit, watch, trigger, reset, formState: { errors, isValid, isDirty } } = useForm({
     mode: "onChange",
-    defaultValues: idEditSession ? editValues : {}
   });
   const regularPrice = watch("regularPrice");
 
@@ -49,28 +40,14 @@ function CreateCabinForm({ cabinToEdit, onSetShowForm }) {
 
 
   const onSubmit = (data) => {
-    const isFileList = data.image instanceof FileList;
-    const imageFile = isFileList ? data.image[0] : null;
+    const imageFile = data.image?.[0];
 
-    if (!imageFile && !idEditSession) {
+    if (!imageFile) {
       toast.error("Lütfen bir resim seçin.");
       return;
     }
-
-    const formattedData = {
-      ...data,
-      image: imageFile || data.image,
-    };
-
-    addNewCabin({
-      newCabinData: formattedData,
-      cabinId: editId,
-    });
+    addNewCabin({ ...data, image: imageFile })
   };
-
-
-
-
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
       <FormRow label="Cabin name" error={errors.name?.message}>
@@ -133,23 +110,17 @@ function CreateCabinForm({ cabinToEdit, onSetShowForm }) {
           accept="image/*"
 
           {...register("image", {
-            required: idEditSession ? false : "Lütfen bir resim yükleyin.",
+            required: "Resim eklemek zorunludur.",
           })}
         />
       </FormRow>
 
       <FormRow>
-        <Button type="reset" variation="secondary" onClick={() => idEditSession ? onSetShowForm(false) : reset()}>
-          {idEditSession ? 'Close' : 'Cancel'}
+        <Button type="reset" variation="secondary" onClick={() => reset()}>
+          Cancel
         </Button>
         <Button type="submit" disabled={!isDirty || !isValid || isCreating}>
-          {isCreating
-            ? idEditSession
-              ? 'Updating...'
-              : 'Adding...'
-            : idEditSession
-              ? 'Update cabin'
-              : 'Add cabin'}
+          {isCreating ? 'Adding...' : 'Add cabin'}
         </Button>
       </FormRow>
     </Form>
