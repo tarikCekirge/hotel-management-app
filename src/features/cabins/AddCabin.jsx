@@ -40,4 +40,5 @@ const AddCabin = () => {
     );
 };
 
+
 export default AddCabin

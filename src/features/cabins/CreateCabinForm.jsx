@@ -23,6 +23,7 @@ function CreateCabinForm({ cabinToEdit, onSetShowForm, onCloseModal }) {
     if (idEditSession) {
       onSetShowForm(false);
     }
+    onCloseModal();
   });
 
   const { register, handleSubmit, watch, trigger, reset, formState: { errors, isValid, isDirty } } = useForm({
@@ -54,7 +55,7 @@ function CreateCabinForm({ cabinToEdit, onSetShowForm, onCloseModal }) {
       newCabinData: formattedData,
       cabinId: editId,
     });
-    onCloseModal();
+
   };
 
 

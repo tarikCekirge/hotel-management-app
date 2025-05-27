@@ -1,5 +1,12 @@
 // components/Modal.jsx
-import { createContext, useContext, useState, useCallback } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+  useRef,
+} from "react";
 import { createPortal } from "react-dom";
 import styled from "styled-components";
 import { HiXMark } from "react-icons/hi2";
@@ -55,11 +62,10 @@ const CloseButton = styled.button`
 `;
 
 // Context
-const ModalContext = createContext();
+const ModalContext = createContext(null);
 
-export default function Modal({ children }) {
+function Modal({ children }) {
   const [openName, setOpenName] = useState("");
-
   const open = useCallback((name) => setOpenName(name), []);
   const close = useCallback(() => setOpenName(""), []);
 
@@ -70,29 +76,63 @@ export default function Modal({ children }) {
   );
 }
 
-// Render Prop Trigger
-Modal.Open = function ModalOpen({ opens: opensWindowName, children }) {
-  const { open } = useContext(ModalContext);
-
+function ModalOpen({ opens: opensWindowName, children }) {
+  const context = useContext(ModalContext);
+  if (!context) {
+    console.warn("Modal.Open must be used inside Modal.");
+    return null;
+  }
+  const { open } = context;
   return children({ open: () => open(opensWindowName) });
 };
 
-// Modal Window
-Modal.Window = function ModalWindow({ name, children }) {
-  const { openName, close } = useContext(ModalContext);
+function ModalContent({ close, modalRef }) {
+  useEffect(() => {
+    const handleKeyDown = (e) => { if (e.key === "Escape") close(); };
+    const handleClickOutside = (e) => {
+      if (modalRef.current && !modalRef.current.contains(e.target)) close();
+    };
 
-  if (openName !== name) return null;
+    document.addEventListener("keydown", handleKeyDown, true);
+    document.addEventListener("mousedown", handleClickOutside, true);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [close, modalRef]);
+
+  return null;
+}
+
+function ModalWindow({ name, children }) {
+  const context = useContext(ModalContext);
+  const modalRef = useRef();
+
+  if (!context) return null;
+
+  const { openName, close } = context;
+  const isOpen = openName === name;
+
+  if (!isOpen) return null;
 
   return createPortal(
     <>
-      <Overlay onClick={close} />
-      <StyledModal>
-        <CloseButton onClick={close}>
-          <HiXMark />
-        </CloseButton>
-        {typeof children === "function" ? children({ close }) : children}
-      </StyledModal>
+      <Overlay>
+        <StyledModal ref={modalRef}>
+          <CloseButton onClick={close}>
+            <HiXMark />
+          </CloseButton>
+          {typeof children === "function" ? children({ close }) : children}
+        </StyledModal>
+      </Overlay>
+      <ModalContent close={close} modalRef={modalRef} />
     </>,
     document.body
   );
 };
+
+
+Modal.Open = ModalOpen;
+Modal.Window = ModalWindow;
+
+export default Modal;
