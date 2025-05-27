@@ -1,5 +1,5 @@
 // components/Modal.jsx
-import { createContext, useContext, useState, useCallback } from "react";
+import { cloneElement, createContext, isValidElement, useCallback, useContext, useState } from "react";
 import { createPortal } from "react-dom";
 import styled from "styled-components";
 import { HiXMark } from "react-icons/hi2";
@@ -70,14 +70,30 @@ export default function Modal({ children }) {
   );
 }
 
-// Render Prop Trigger
+// Modal.Open component
 Modal.Open = function ModalOpen({ opens: opensWindowName, children }) {
-  const { open } = useContext(ModalContext);
+  const modalContext = useContext(ModalContext);
 
-  return children({ open: () => open(opensWindowName) });
+  if (!modalContext) {
+    throw new Error("<Modal.Open> must be used within a <Modal> component.");
+  }
+
+  const { open } = modalContext;
+
+  if (!isValidElement(children)) {
+    console.error("<Modal.Open> expects a single valid React element as its child.");
+    return null;
+  }
+
+  return cloneElement(children, {
+    onClick: (e) => {
+      children.props?.onClick?.(e);
+      open(opensWindowName);
+    },
+  });
 };
 
-// Modal Window
+// Modal.Window component
 Modal.Window = function ModalWindow({ name, children }) {
   const { openName, close } = useContext(ModalContext);
 
@@ -90,7 +106,9 @@ Modal.Window = function ModalWindow({ name, children }) {
         <CloseButton onClick={close}>
           <HiXMark />
         </CloseButton>
-        {typeof children === "function" ? children({ close }) : children}
+        {cloneElement(children, {
+          onCloseModal: close,
+        })}
       </StyledModal>
     </>,
     document.body

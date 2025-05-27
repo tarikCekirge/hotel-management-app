@@ -13,7 +13,7 @@ import { useCreateCabin } from "./useCreateCabin";
 
 
 
-function CreateCabinForm({ cabinToEdit, onSetShowForm, onCLoseModal }) {
+function CreateCabinForm({ cabinToEdit, onSetShowForm, onCloseModal }) {
   const { id: editId, ...editValues } = cabinToEdit || {};
 
   const idEditSession = Boolean(editId);
@@ -54,7 +54,7 @@ function CreateCabinForm({ cabinToEdit, onSetShowForm, onCLoseModal }) {
       newCabinData: formattedData,
       cabinId: editId,
     });
-    onCLoseModal?.()
+    onCloseModal();
   };
 
 
@@ -63,7 +63,7 @@ function CreateCabinForm({ cabinToEdit, onSetShowForm, onCLoseModal }) {
 
 
   return (
-    <Form onSubmit={handleSubmit(onSubmit)} type={onCLoseModal ? "modal" : "default"}>
+    <Form onSubmit={handleSubmit(onSubmit)} type={onCloseModal ? "modal" : "regular"}>
       <FormRow label="Cabin name" error={errors.name?.message}>
         <Input type="text" id="name" {...register("name", { required: "Bu alan zorunludur." })} />
       </FormRow>
@@ -130,7 +130,7 @@ function CreateCabinForm({ cabinToEdit, onSetShowForm, onCLoseModal }) {
       </FormRow>
 
       <FormRow>
-        <Button type="reset" variation="secondary" onClick={() => onCLoseModal?.()}>
+        <Button type="reset" variation="secondary" onClick={() => onCloseModal?.()}>
           {idEditSession ? 'Close' : 'Cancel'}
         </Button>
         <Button type="submit" disabled={!isDirty || !isValid || isCreating}>
