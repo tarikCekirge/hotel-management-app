@@ -13,7 +13,7 @@ import { useCreateCabin } from "./useCreateCabin";
 
 
 
-function CreateCabinForm({ cabinToEdit, onSetShowForm }) {
+function CreateCabinForm({ cabinToEdit, onSetShowForm, onCLoseModal }) {
   const { id: editId, ...editValues } = cabinToEdit || {};
 
   const idEditSession = Boolean(editId);
@@ -54,13 +54,16 @@ function CreateCabinForm({ cabinToEdit, onSetShowForm }) {
       newCabinData: formattedData,
       cabinId: editId,
     });
+    onCLoseModal?.()
   };
 
 
 
 
+
+
   return (
-    <Form onSubmit={handleSubmit(onSubmit)}>
+    <Form onSubmit={handleSubmit(onSubmit)} type={onCLoseModal ? "modal" : "default"}>
       <FormRow label="Cabin name" error={errors.name?.message}>
         <Input type="text" id="name" {...register("name", { required: "Bu alan zorunludur." })} />
       </FormRow>
@@ -127,7 +130,7 @@ function CreateCabinForm({ cabinToEdit, onSetShowForm }) {
       </FormRow>
 
       <FormRow>
-        <Button type="reset" variation="secondary" onClick={() => idEditSession ? onSetShowForm(false) : reset()}>
+        <Button type="reset" variation="secondary" onClick={() => onCLoseModal?.()}>
           {idEditSession ? 'Close' : 'Cancel'}
         </Button>
         <Button type="submit" disabled={!isDirty || !isValid || isCreating}>
