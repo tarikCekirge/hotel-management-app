@@ -11,7 +11,18 @@ import ConfirmDelete from "../../ui/ConfirmDelete";
 import Table from "../../ui/Table";
 import Menus from "../../ui/Menus";
 
-// Styled Components
+// const TableRow = styled.div`
+//   display: grid;
+//   grid-template-columns: 0.6fr 1.8fr 2.2fr 1fr 1fr 1fr;
+//   column-gap: 2.4rem;
+//   align-items: center;
+//   padding: 1.4rem 2.4rem;
+
+//   &:not(:last-child) {
+//     border-bottom: 1px solid var(--color-grey-100);
+//   }
+// `;
+
 const Img = styled.img`
   display: block;
   width: 6.4rem;
@@ -39,23 +50,13 @@ const Discount = styled.div`
   color: var(--color-green-700);
 `;
 
-// Custom wrapper to combine Menus.Button and Modal.Open
-function MenuModalButton({ icon, modalName, children }) {
-  return (
-    <Modal.Open opens={modalName}>
-      {({ open }) => (
-        <Menus.Button icon={icon} onClick={open}>
-          {children}
-        </Menus.Button>
-      )}
-    </Modal.Open>
-  );
-}
+
 
 const CabinRow = ({ cabin }) => {
   const { image, name, id, regularPrice, discount, maxCapacity } = cabin;
+  const [showForm, setShowForm] = useState(false);
 
-  const { isCreating, addNewCabin: duplicateToCabin } = useCreateCabin();
+  const { isCreating, addNewCabin: duplicateToCabin } = useCreateCabin()
   const { deleteCabin, isDeleting } = useDeleteCabin();
 
   const handleDuplicate = () => {
@@ -70,6 +71,9 @@ const CabinRow = ({ cabin }) => {
     duplicateToCabin({ newCabinData: newCabin, cabinId: null });
   };
 
+
+
+
   return (
     <>
       <Table.Row>
@@ -80,49 +84,42 @@ const CabinRow = ({ cabin }) => {
         {discount ? <Discount>{formatCurrency(discount)}</Discount> : <span>&mdash;</span>}
 
         <div>
+          <button disabled={isCreating} onClick={handleDuplicate}><HiSquare2Stack /></button>
+
           <Modal>
-            <Menus.Menu>
-              <Menus.Toggle id={cabin.id} />
-              <Menus.List id={cabin.id}>
-                <Menus.Button icon={<HiSquare2Stack />} onClick={handleDuplicate}>
-                  Duplicate
-                </Menus.Button>
-
-                <MenuModalButton icon={<HiPencil />} modalName="edit">
-                  Edit
-                </MenuModalButton>
-
-                <MenuModalButton icon={<HiTrash />} modalName="delete">
-                  Delete
-                </MenuModalButton>
-              </Menus.List>
-            </Menus.Menu>
+            <Modal.Open opens="edit">
+              {({ open }) => <button onClick={open}><HiPencil /></button>
+              }
+            </Modal.Open>
+            <Modal.Open opens="delete">
+              {({ open }) => <button onClick={open} disabled={isDeleting}><HiTrash /></button>
+              }
+            </Modal.Open>
 
             <Modal.Window name="edit">
-              {({ close }) => (
-                <CreateCabinForm
-                  onSetShowForm={() => { }}
-                  cabinToEdit={cabin}
-                  onCloseModal={close}
-                />
-              )}
+              {({ close }) => <CreateCabinForm onSetShowForm={setShowForm} cabinToEdit={cabin} onCloseModal={close} />}
             </Modal.Window>
-
             <Modal.Window name="delete">
-              {({ close }) => (
-                <ConfirmDelete
-                  onCloseModal={close}
-                  resourceName="cabins"
-                  onConfirm={() => deleteCabin(id)}
-                  disabled={isDeleting}
-                />
-              )}
+              {({ close }) => <ConfirmDelete onCloseModal={close} resourceName={"cabins"} onConfirm={() => deleteCabin(id)} disabled={isDeleting} />}
             </Modal.Window>
           </Modal>
+          <Menus.Menu>
+            <Menus.Toggle id={cabin.id} />
+            <Menus.List id={cabin.id}>
+              <Menus.Button icon={<HiSquare2Stack />} onClick={handleDuplicate}>Duplicate</Menus.Button>
+              <Menus.Button icon={<HiPencil />}>Edit</Menus.Button>
+              <Menus.Button icon={<HiTrash />}>Delete</Menus.Button>
+            </Menus.List>
+          </Menus.Menu>
+
+
+
         </div>
       </Table.Row>
+
     </>
   );
 };
 
-export default CabinRow;
+
+export default CabinRow
