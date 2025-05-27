@@ -20,23 +20,19 @@ import CabinTable from "./CabinTable";
 
 const AddCabin = () => {
     return (
-        <Modal>
-            <Modal.Open opens="cabin-form">
-                {({ open }) => <Button onClick={open}>Yeni Oda Ekle</Button>}
-            </Modal.Open>
+        <div>
+            <Modal>
+                <Modal.Open opens="cabin-form">
+                    {({ open }) => <Button onClick={open}>Yeni Oda Ekle</Button>}
+                </Modal.Open>
 
-            <Modal.Window name="cabin-form">
-                {({ close }) => <CreateCabinForm onCloseModal={close} />}
-            </Modal.Window>
+                <Modal.Window name="cabin-form">
+                    {({ close }) => <CreateCabinForm onCloseModal={close} />}
+                </Modal.Window>
+            </Modal>
 
-            <Modal.Open opens="table">
-                {({ open }) => <Button onClick={open}>Tüm Odalar</Button>}
-            </Modal.Open>
+        </div>
 
-            <Modal.Window name="table">
-                {({ close }) => <CabinTable onCloseModal={close} />}
-            </Modal.Window>
-        </Modal>
     );
 };
 
