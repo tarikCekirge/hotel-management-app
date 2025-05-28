@@ -96,7 +96,7 @@ function Toggle({ id }) {
   const { openId, close, open, setPosition } = useContext(MenusContext);
 
   const handleClick = (e) => {
-    e.stopPropagation(); // Event bubbling'i durdur
+    e.stopPropagation();
     const rect = e.target.closest("button").getBoundingClientRect();
     setPosition({
       x: window.innerWidth - rect.right + 8,
