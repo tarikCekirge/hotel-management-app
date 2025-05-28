@@ -14,6 +14,7 @@ import styled from "styled-components";
 const MenuWrapper = styled.div`
 
   position: relative;
+  width: 100%;
 `;
 
 const StyledToggle = styled.button`

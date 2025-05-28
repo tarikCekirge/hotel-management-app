@@ -81,7 +81,7 @@ function Row({ children }) {
 }
 
 function Body({ data, render }) {
-  if (!data.length) return <Empty>Gösterilecek Data Bok</Empty>
+  if (!data.length) return <Empty>Gösterilecek Data Yok</Empty>
   return <StyledBody role="presentation">{data.map(render)}</StyledBody>;
 }
 
