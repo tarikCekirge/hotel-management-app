@@ -4,14 +4,16 @@ import Menus from "../../ui/Menus";
 import Empty from "../../ui/Empty";
 import { useBookings } from "./useBookings";
 import Spinner from "../../ui/Spinner";
+import Pagination from "../../ui/Pagination";
+import { useResetPageOnFilterChange } from "../../hooks/useResetPageOnFilterChange";
 
 function BookingTable() {
-
-  const { isLoading, bookings, error } = useBookings()
+  useResetPageOnFilterChange();
+  const { isLoading, bookings, count, error } = useBookings()
   console.log(bookings)
 
   if (isLoading) return <Spinner />
-  if (!bookings.length) return <Empty resource={'Bookings'} />
+  if (!bookings) return <Empty resource={'Bookings'} />
   if (error) return <div>Hata oluştu: {error.message}</div>
   return (
     <Menus>
@@ -31,6 +33,9 @@ function BookingTable() {
             <BookingRow key={booking.id} booking={booking} />
           )}
         />
+        <Table.Footer>
+          <Pagination count={count} length={bookings.length} />
+        </Table.Footer>
       </Table>
     </Menus>
   );

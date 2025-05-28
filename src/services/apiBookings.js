@@ -1,17 +1,62 @@
+import { PAGE_SIZE } from "../utils/constants";
 import { getToday } from "../utils/helpers";
 import supabase from "./supabase";
 
-export async function getBookings() {
-  const { data, error } = await supabase
+export async function getBookings({
+  filter,
+  sortBy,
+  page = 1,
+  pageSize = PAGE_SIZE,
+}) {
+  // 1. Toplam sayı
+  let countQuery = supabase
+    .from("bookings")
+    .select("*", { count: "exact", head: true });
+
+  if (filter !== null) {
+    countQuery = countQuery[filter.method || "eq"](filter.field, filter.value);
+  }
+
+  const { count, error: countError } = await countQuery;
+
+  if (countError) {
+    console.error("Supabase count error:", countError);
+    throw new Error("Toplam kayıt alınamadı");
+  }
+
+  const pageCount = Math.ceil(count / pageSize);
+  if (count === 0 || page > pageCount) {
+    return { data: [], count };
+  }
+
+  // 2. Veri
+  let query = supabase
     .from("bookings")
     .select("*,cabins(name),guests(fullName,email)");
 
+  if (filter !== null) {
+    query = query[filter.method || "eq"](filter.field, filter.value);
+  }
+
+  if (sortBy !== null) {
+    query = query.order(sortBy.field, {
+      ascending: sortBy.direction === "asc",
+    });
+  }
+
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
+
+  query = query.range(from, to);
+
+  const { data, error } = await query;
+
   if (error) {
-    console.error("Supabase error:", error);
+    console.error("Supabase data fetch error:", error);
     throw new Error("Booking verisi alınamadı");
   }
 
-  return data;
+  return { data, count };
 }
 
 export async function getBooking(id) {
