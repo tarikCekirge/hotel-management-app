@@ -1,35 +1,101 @@
+import { useForm } from "react-hook-form";
 import Button from "../../ui/Button";
 import Form from "../../ui/Form";
 import FormRow from "../../ui/FormRow";
 import Input from "../../ui/Input";
 
 // Email regex: /\S+@\S+\.\S+/
+const emailRegex = /\S+@\S+\.\S+/;
 
 function SignupForm() {
+  const {
+    register,
+    handleSubmit,
+    watch,
+    reset,
+    formState: { errors, isValid, isDirty },
+  } = useForm({
+    mode: "onTouched",
+    defaultValues: {
+      fullName: "",
+      email: "",
+      password: "",
+      passwordConfirm: "",
+    },
+  });
+
+  const password = watch("password");
+
+  function onSubmit(data) {
+    console.log("Form verisi:", data);
+    // TODO: Sunucuya gönderilecek
+    reset(undefined, {
+      keepErrors: false,
+      keepTouched: false,
+      keepDirty: false,
+      keepIsValid: false,
+    });
+  }
+
   return (
-    <Form>
-      <FormRow label="Full name" error={""}>
-        <Input type="text" id="fullName" />
+    <Form onSubmit={handleSubmit(onSubmit)}>
+      <FormRow label="Ad Soyad" error={errors?.fullName?.message}>
+        <Input
+          type="text"
+          id="fullName"
+          {...register("fullName", {
+            required: "Ad soyad zorunludur",
+          })}
+        />
       </FormRow>
 
-      <FormRow label="Email address" error={""}>
-        <Input type="email" id="email" />
+      <FormRow label="Email adresi" error={errors?.email?.message}>
+        <Input
+          type="email"
+          id="email"
+          {...register("email", {
+            required: "Email adresi zorunludur",
+            pattern: {
+              value: emailRegex,
+              message: "Geçerli bir email adresi giriniz",
+            },
+          })}
+        />
       </FormRow>
 
-      <FormRow label="Password (min 8 characters)" error={""}>
-        <Input type="password" id="password" />
+      <FormRow label="Şifre (en az 8 karakter)" error={errors?.password?.message}>
+        <Input
+          type="password"
+          id="password"
+          {...register("password", {
+            required: "Şifre zorunludur",
+            minLength: {
+              value: 8,
+              message: "Şifre en az 8 karakter olmalıdır",
+            },
+          })}
+        />
       </FormRow>
 
-      <FormRow label="Repeat password" error={""}>
-        <Input type="password" id="passwordConfirm" />
+      <FormRow label="Şifreyi tekrar girin" error={errors?.passwordConfirm?.message}>
+        <Input
+          type="password"
+          id="passwordConfirm"
+          {...register("passwordConfirm", {
+            required: "Lütfen şifrenizi tekrar girin",
+            validate: (value) =>
+              value === password || "Şifreler uyuşmuyor",
+          })}
+        />
       </FormRow>
 
       <FormRow>
-        {/* type is an HTML attribute! */}
-        <Button variation="secondary" type="reset">
-          Cancel
+        <Button variation="secondary" type="reset" onClick={() => reset()}>
+          İptal
         </Button>
-        <Button>Create new user</Button>
+        <Button disabled={!isDirty || !isValid} type="submit">
+          Yeni kullanıcı oluştur
+        </Button>
       </FormRow>
     </Form>
   );
