@@ -16,7 +16,7 @@ export const useLogin = () => {
     onSuccess: async () => {
       const user = await getCurrentUser();
       queryClient.setQueryData(["user"], user);
-      navigate("/dashboard");
+      navigate("/dashboard", { replace: true });
     },
     onError: (err) => {
       toast.error("Giriş yapılamadı: " + err.message);
