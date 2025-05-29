@@ -12,6 +12,11 @@ import { useMoveBack } from "../../hooks/useMoveBack";
 import { useBooking } from "./useBooking";
 import Spinner from "../../ui/Spinner";
 import { useNavigate } from "react-router-dom";
+import { HiArrowUpOnSquare } from "react-icons/hi2";
+import { useChekout } from "../check-in-out/useChekout";
+import Modal from "../../ui/Modal";
+import { useDeleteBooking } from "./useDeleteBooking";
+import ConfirmDelete from "../../ui/ConfirmDelete";
 
 const HeadingGroup = styled.div`
   display: flex;
@@ -21,8 +26,9 @@ const HeadingGroup = styled.div`
 
 function BookingDetail() {
   const navigate = useNavigate();
-  console.log(navigate)
   const { isLoading, booking, bookingId, error } = useBooking();
+  const { checkout, isCheckingOut } = useChekout()
+  const { deleteBooking, isDeleting } = useDeleteBooking()
   const moveBack = useMoveBack();
 
   if (isLoading) return <Spinner />;
@@ -52,14 +58,39 @@ function BookingDetail() {
       <BookingDataBox booking={booking} />
 
       <ButtonGroup>
-        {/* {status === "unconfirmed" && <>
+        {status === "unconfirmed" && <>
           <Button onClick={() => navigate(`/ckeckin/${bookingId}`)}>
             Check in
           </Button>
-        </>} */}
-        <Button onClick={() => navigate(`/ckeckin/${bookingId}`)}>
-          Check in
-        </Button>
+        </>}
+
+        {status === "checked-in" && (
+          <Button
+            icon={<HiArrowUpOnSquare />}
+            onClick={() => checkout(bookingId)}
+            disabled={isCheckingOut}
+          >
+            Check out
+          </Button>
+        )}
+
+        <Modal>
+          <Modal.Open opens="delete-booking">
+            {({ open }) => <Button variation='danger' open="delete" onClick={open}>Delete</Button>}
+          </Modal.Open>
+          <Modal.Window name="delete-booking">
+            {({ close }) => (
+              <ConfirmDelete
+                onCloseModal={close}
+                resourceName="booking"
+                onConfirm={() => deleteBooking(bookingId, {
+                  onSettled: () => navigate(-1)
+                })}
+                disabled={isDeleting}
+              />
+            )}
+          </Modal.Window>
+        </Modal>
         <Button variation="secondary" onClick={moveBack}>
           Back
         </Button>

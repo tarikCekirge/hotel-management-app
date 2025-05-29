@@ -10,7 +10,6 @@ import { useResetPageOnFilterChange } from "../../hooks/useResetPageOnFilterChan
 function BookingTable() {
   useResetPageOnFilterChange();
   const { isLoading, bookings, count, error } = useBookings()
-  console.log(bookings)
 
   if (isLoading) return <Spinner />
   if (!bookings) return <Empty resource={'Bookings'} />
