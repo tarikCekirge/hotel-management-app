@@ -52,11 +52,14 @@ function BookingDetail() {
       <BookingDataBox booking={booking} />
 
       <ButtonGroup>
-        {status === "unconfirmed" && <>
+        {/* {status === "unconfirmed" && <>
           <Button onClick={() => navigate(`/ckeckin/${bookingId}`)}>
             Check in
           </Button>
-        </>}
+        </>} */}
+        <Button onClick={() => navigate(`/ckeckin/${bookingId}`)}>
+          Check in
+        </Button>
         <Button variation="secondary" onClick={moveBack}>
           Back
         </Button>

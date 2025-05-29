@@ -31,7 +31,7 @@ function Checkbox({ checked, onChange, disabled = false, id, children }) {
       <input
         type="checkbox"
         id={id}
-        checked={checked}
+        checked={checked ?? false}
         onChange={onChange}
         disabled={disabled}
       />
