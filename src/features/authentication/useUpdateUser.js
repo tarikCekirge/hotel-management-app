@@ -8,9 +8,9 @@ export const useUpdateUser = () => {
   const { mutate: updateUser, isLoading: isUpdating } = useMutation({
     mutationFn: updateCurrentUser,
     onSuccess: (user) => {
-      //   queryClient.setQueryData(["user"], user.user);
+      queryClient.setQueryData(["user"], user.user);
       toast.success("Profil başarıyla güncellendi");
-      queryClient.invalidateQueries({ queryKey: ["user"] });
+      //   queryClient.invalidateQueries({ queryKey: ["user"] });
     },
     onError: (err) => {
       toast.error(`Hata meydana geldi (${err.message})`);

@@ -14,7 +14,6 @@ const fontSizeByTag = {
 const Heading = styled.h1`
   font-size: ${(props) => fontSizeByTag[props.as || "h1"] || "1rem"};
   font-weight: 600;
-  color: #333;
   text-align: center;
   margin: 0;
   padding: 0;
