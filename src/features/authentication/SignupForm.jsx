@@ -96,7 +96,7 @@ function SignupForm() {
       </FormRow>
 
       <FormRow>
-        <Button variation="secondary" type="reset" onClick={() => reset()}>
+        <Button variation="secondary" type="reset" onClick={reset}>
           İptal
         </Button>
         <Button disabled={!isDirty || !isValid || isLoading} type="submit">
