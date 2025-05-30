@@ -3,11 +3,14 @@ import Button from "../../ui/Button";
 import Form from "../../ui/Form";
 import FormRow from "../../ui/FormRow";
 import Input from "../../ui/Input";
+import { useSignup } from "./useSignup";
 
 // Email regex: /\S+@\S+\.\S+/
 const emailRegex = /\S+@\S+\.\S+/;
 
 function SignupForm() {
+
+  const { signup, isLoading } = useSignup()
   const {
     register,
     handleSubmit,
@@ -26,9 +29,8 @@ function SignupForm() {
 
   const password = watch("password");
 
-  function onSubmit(data) {
-    console.log("Form verisi:", data);
-    // TODO: Sunucuya gönderilecek
+  function onSubmit({ fullName, email, password }) {
+    signup({ fullName, email, password })
     reset(undefined, {
       keepErrors: false,
       keepTouched: false,
@@ -41,6 +43,7 @@ function SignupForm() {
     <Form onSubmit={handleSubmit(onSubmit)}>
       <FormRow label="Ad Soyad" error={errors?.fullName?.message}>
         <Input
+          disabled={isLoading}
           type="text"
           id="fullName"
           {...register("fullName", {
@@ -51,6 +54,7 @@ function SignupForm() {
 
       <FormRow label="Email adresi" error={errors?.email?.message}>
         <Input
+          disabled={isLoading}
           type="email"
           id="email"
           {...register("email", {
@@ -65,6 +69,7 @@ function SignupForm() {
 
       <FormRow label="Şifre (en az 8 karakter)" error={errors?.password?.message}>
         <Input
+          disabled={isLoading}
           type="password"
           id="password"
           {...register("password", {
@@ -79,6 +84,7 @@ function SignupForm() {
 
       <FormRow label="Şifreyi tekrar girin" error={errors?.passwordConfirm?.message}>
         <Input
+          disabled={isLoading}
           type="password"
           id="passwordConfirm"
           {...register("passwordConfirm", {
@@ -93,7 +99,7 @@ function SignupForm() {
         <Button variation="secondary" type="reset" onClick={() => reset()}>
           İptal
         </Button>
-        <Button disabled={!isDirty || !isValid} type="submit">
+        <Button disabled={!isDirty || !isValid || isLoading} type="submit">
           Yeni kullanıcı oluştur
         </Button>
       </FormRow>
