@@ -54,11 +54,11 @@ function MenuModalButton({ icon, modalName, children }) {
 const CabinRow = ({ cabin }) => {
   const { image, name, id, regularPrice, discount, maxCapacity } = cabin;
 
-  const { isCreating, addNewCabin: duplicateToCabin } = useCreateCabin();
+  const { addNewCabin: duplicateToCabin } = useCreateCabin();
   const { deleteCabin, isDeleting } = useDeleteCabin();
 
   const handleDuplicate = () => {
-    const { id, ...duplicateCabin } = cabin;
+    const { ...duplicateCabin } = cabin;
 
     const newCabin = {
       ...duplicateCabin,

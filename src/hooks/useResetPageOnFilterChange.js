@@ -12,5 +12,5 @@ export function useResetPageOnFilterChange() {
       newParams.set("page", "1");
       setSearchParams(newParams);
     }
-  }, [status, sortBy]);
+  }, [status, sortBy, searchParams, setSearchParams]);
 }

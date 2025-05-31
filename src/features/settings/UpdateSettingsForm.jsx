@@ -5,7 +5,6 @@ import Input from '../../ui/Input';
 import { useSettings } from './useSettings';
 import Spinner from '../../ui/Spinner';
 import { useEffect } from 'react';
-import Button from '../../ui/Button';
 import { useEditSettings } from './useEditSettings';
 
 function UpdateSettingsForm() {
@@ -21,7 +20,7 @@ function UpdateSettingsForm() {
     register,
     handleSubmit,
     reset,
-    formState: { errors, isValid, isDirty },
+    formState: { errors },
   } = useForm({
     mode: 'onChange',
   });
