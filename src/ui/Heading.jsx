@@ -1,7 +1,5 @@
 import styled from "styled-components";
 
-
-
 const fontSizeByTag = {
   h1: "2.5rem",
   h2: "2rem",
@@ -11,13 +9,18 @@ const fontSizeByTag = {
   h6: "1rem",
 };
 
-const Heading = styled.h1`
-  font-size: ${(props) => fontSizeByTag[props.as || "h1"] || "1rem"};
+const StyledHeading = styled.div`
+  font-size: ${(props) => fontSizeByTag[props.$as] || "1rem"};
   font-weight: 600;
-  text-align: center;
+  text-align: ${(props) => props.$align || "left"};
   margin: 0;
   padding: 0;
-
 `;
 
-export default Heading;
+export default function Heading({ as = "h1", text, children, textAlign = "left", ...props }) {
+  return (
+    <StyledHeading as={as} $as={as} $align={textAlign} {...props}>
+      {text || children}
+    </StyledHeading>
+  );
+}
