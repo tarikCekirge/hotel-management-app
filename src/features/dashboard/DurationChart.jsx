@@ -1,4 +1,14 @@
 import styled from "styled-components";
+import Heading from "../../ui/Heading";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
+import { useDarkMode } from "../../context/DarkModeContext";
 
 const ChartBox = styled.div`
   /* Box */
@@ -105,7 +115,6 @@ const startDataDark = [
 ];
 
 function prepareData(startData, stays) {
-  // A bit ugly code, but sometimes this is what it takes when working with real data 😅
 
   function incArrayValue(arr, field) {
     return arr.map((obj) =>
@@ -129,4 +138,50 @@ function prepareData(startData, stays) {
     .filter((obj) => obj.value > 0);
 
   return data;
+}
+
+
+
+export default function DurationChart({ confirmedStays }) {
+  const { isDarkMode } = useDarkMode();
+
+  const startData = isDarkMode ? startDataDark : startDataLight;
+
+  const data = prepareData(startData, confirmedStays);
+
+  return (
+    <ChartBox>
+      <Heading as="h2" text="Stay duration summary" />
+      <ResponsiveContainer height={240} width="100%">
+        <PieChart>
+          <Pie
+            data={data}
+            dataKey="value"
+            nameKey="duration"
+            cx="50%"
+            cy="50%"
+            outerRadius={100}
+            innerRadius={60}
+            paddingAngle={3}
+          // label={({ percent, duration }) =>
+          //   `${duration} (${(percent * 100).toFixed(0)}%)`
+          // }
+          >
+            {data.map((entry) => (
+              <Cell key={entry.duration} fill={entry.color} stroke={entry.color} />
+            ))}
+          </Pie>
+          <Legend verticalAlign="middle" align="right" width='30%' layout="vertical" iconSize={15} iconType="circle" />
+          <Tooltip
+            formatter={(value, name) => [`${value} stay(s)`, name]}
+            contentStyle={{
+              backgroundColor: isDarkMode ? "#ffffff" : "#fff",
+              border: "none",
+              borderRadius: "0.5rem",
+            }}
+          />
+        </PieChart>
+      </ResponsiveContainer>
+    </ChartBox>
+  );
 }

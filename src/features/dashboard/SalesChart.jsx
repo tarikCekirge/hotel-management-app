@@ -59,7 +59,7 @@ export default function SalesChart({ bookings, numDays }) {
 
   return (
     <StyledSalesChart>
-      <Heading as="h2" text="Sales" />
+      <Heading as="h2" text={`Sales from ${format(allDates.at(0), 'MMM dd yyyy')} - ${format(allDates.at(-1), 'MMM dd yyyy')}`} />
       <ResponsiveContainer height={300} width="100%">
         <AreaChart data={data}>
           <XAxis dataKey="label" tick={{ fill: colors.text }} tickLine={{ stroke: colors.text }} />
